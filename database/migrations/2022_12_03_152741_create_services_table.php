@@ -15,6 +15,10 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
+            $table->string('nama_service');
+            $table->foreignId('id_karyawan')->constrained('karyawans')->onUpdate('cascade')->onDelete('cascade');
+            $table->integer('harga_service');
+            $table->boolean('status_service');
             $table->timestamps();
         });
     }

@@ -8,4 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Karyawan extends Model
 {
     use HasFactory;
+
+    /**
+     * fillable
+     * 
+     * @var array
+     */
+    protected $fillable = [
+        'nama',
+        'jabatan',
+        'umur',
+        'noHp',
+        'alamat',
+        'email',
+        'gaji',
+        'status'
+    ];
 }

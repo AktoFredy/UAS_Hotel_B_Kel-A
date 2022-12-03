@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('order_services', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_booking')->constrained('bookings')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('id_service')->constrained('services')->onUpdate('cascade')->onDelete('cascade');
+            $table->boolean('status_pembayaran');
             $table->timestamps();
         });
     }

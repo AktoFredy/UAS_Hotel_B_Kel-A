@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('order_fobs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_booking')->constrained('bookings')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('id_menu')->constrained('fobs')->onUpdate('cascade')->onDelete('cascade');
+            $table->boolean('status_pembayaran');
+            $table->integer('jumlah'); // jangan lupa mengurangi stok apabila jumlah tidak == 0
+            $table->integer('total'); //total harga dari makanan * jumlah dipesan
             $table->timestamps();
         });
     }
