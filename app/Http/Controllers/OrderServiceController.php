@@ -2,79 +2,98 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Booking;
+use App\Http\Resources\OrderServiceResource;
 use App\Models\OrderService;
-use App\Models\Service;
-use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class OrderServiceController extends Controller
 {
     
     public function index(){
-        $orderService = OrderService::get();
-        return view('orderService.index', compact('orderService'));
+        $orderService = OrderService::latest()->get();
+
+        if(count($orderService)){
+            return new OrderServiceResource(true, 'List Data Order Service', $orderService);
+        }
+
+        return new OrderServiceResource(false, 'List Data Order Service Kosong', $orderService);
     }
 
-    public function create(){
-        $booking = Booking::get();
-        $service = Service::get();
-        return view('orderService.create', compact('booking', 'service'));
+    /**
+     * Display spesific Order Fob
+     * 
+     * @param \App\Models\Category $category
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $orderService = OrderService::findOrfail($id);
+
+        if($orderService){
+            return new OrderServiceResource(true, 'Data Order Service Hotel', $orderService);
+        }
+
+        return new OrderServiceResource(false, 'Data Order Service Hotel Tidak Ditemukan', $orderService);;
     }
 
     public function store(Request $request){
-        $this->validate($request, [
+
+        $validator = Validator::make($request->all(), [
             'id_booking' => 'required',
             'id_service' => 'required',
             'status_pembayaran' => 'required'
         ]);
 
-        try{
-            OrderService::create([
-                'id_booking' => $request->id_booking,
-                'id_service' => $request->id_service,
-                'status_pembayaran' => $request->status_pembayaran
-            ]);
-            return redirect()->route('orderService.index')->with(['success' => 'Data order service berhasil Disimpan']);
-        }catch(Exception $e){
-            return redirect()->route('orderService.index')->with(['success' => 'Data order service gagal Disimpan']);
+        if($validator->fails()){
+            return response()->json($validator->errors());
         }
-    }
 
-    public function edit($id)
-    {
-        $orderService = OrderService::find($id);
-        $booking = Booking::get();
-        $service = Service::get();
-        return view('orderservice.edit', compact('booking','service','orderService'));
+        $orderService = OrderService::create([
+            'id_booking' => $request->id_booking,
+            'id_service' => $request->id_service,
+            'status_pembayaran' => $request->status_pembayaran
+        ]);
+
+        return new OrderServiceResource(true, 'Order Service Hotel Berhasil Ditambahkan', $orderService);
     }
 
     public function update(Request $request, $id){
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'id_booking' => 'required',
             'id_service' => 'required',
             'status_pembayaran' => 'required'
         ]);
 
-        try{
-            OrderService::find($id)->update([
+        if($validator->fails()){
+            return response()->json($validator->errors());
+        }
+        
+        $orderService = OrderService::findOrfail($id);
+
+        if($orderService){
+            $orderService->update([
                 'id_booking' => $request->id_booking,
                 'id_service' => $request->id_service,
                 'status_pembayaran' => $request->status_pembayaran
             ]);
-            return redirect()->route('orderService.index')->with(['success' => 'Data order service berhasil Disimpan']);
-        }catch(Exception $e){
-            return redirect()->route('orderService.index')->with(['success' => 'Data order service gagal Disimpan']);
+
+            return new OrderServiceResource(true, 'Order Service Berhasil DiUpdate', $orderService);
         }
+
+        return new OrderServiceResource(false, 'Gagal Update, Order Service Hotel tidak ditemukan', $orderService);        
     }
 
     public function destroy($id)
     {
-        try{
-            OrderService::find($id)->delete();            
-            return redirect()->route('orderService.index')->with(['success' => 'Data  order service berhasil dihapus!']);
-        }catch(Exception $e){ 
-            return redirect()->route('orderService.index')->with(['success'=> 'Data  order service gagal dihapus!']);
-        }                
+        $orderService = OrderService::findOrfail($id);
+        
+        if($orderService){
+            $orderService->delete();
+
+            return new OrderServiceResource(true, 'Order Service Berhasil DiHapus', $orderService); 
+        }
+            
+        return new OrderServiceResource(false, 'Gagal Hapus, Order Service Hotel tidak ditemukan', $orderService);          
     }
 }

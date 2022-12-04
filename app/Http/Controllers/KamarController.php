@@ -2,82 +2,103 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\KamarResource;
 use App\Models\Kamar;
 use Illuminate\Http\Request;
-use Exception;
+use Illuminate\Support\Facades\Validator;
+
 class KamarController extends Controller
 {
 
     
     public function index(){
-        $kamar = Kamar::get();
+        $kamar = Kamar::latest()->get();
 
-        return view('kamar.index', compact('kamar'));
+        if(count($kamar) > 0){
+            return new KamarResource(true, 'List Data Kamar Hotel!', $kamar);
+        }
+
+        return new KamarResource(false, 'List Data Kamar Hotel Kosong!', $kamar);
     }
 
-    
-    public function create(){
-        return view('kamar.create');
-    }
+    /**
+     * Display spesific Order Fob
+     * 
+     * @param \App\Models\Category $category
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $kamar = Kamar::findOrfail($id);
 
+        if($kamar){
+            return new KamarResource(true, 'Data Kamar Hotel', $kamar);
+        }
+
+        return new KamarResource(false, 'Data Kamar Hotel Tidak Ditemukan', $kamar);
+    }
 
     public function store(Request $request){
-        $this->validate($request, [
+        
+        $validator = Validator::make($request->all(), [
             'tipe_kamar' => 'required',
             'harga_sewa' => 'required',
             'kapasitas' => 'required',
             'lantai' => 'required'
         ]);
 
-        try{
-            Kamar::create([
-                'tipe_kamar' => $request->tipe_kamar,
-                'harga_sewa' => $request->harga_sewa,
-                'kapasitas' => $request->kapasitas,
-                'lantai' => $request->lantai
-            ]);
-            return redirect()->route('kamar.index')->with(['success' => 'Data kamar berhasil Disimpan']);
-        }catch(Exception $e){
-            return redirect()->route('kamar.index')->with(['success' => 'Data kamar gagal Disimpan']);
+        if($validator->fails()){
+            return response()->json($validator->errors(), 422);
         }
-    }
 
-    public function edit($id){
-        $kamar = Kamar::find($id);
-        return view('kamar.edit', compact('kamar'));
-            
+        $kamar = Kamar::create([
+            'tipe_kamar' => $request->tipe_kamar,
+            'harga_sewa' => $request->harga_sewa,
+            'kapasitas' => $request->kapasitas,
+            'lantai' => $request->lantai
+        ]);
+
+        return new KamarResource(true, 'Data Kamar Hotel Berhasil Ditambahkan!', $kamar);
     }
 
     public function update(Request $request, $id){
-        $this->validate($request, [
+        
+        $validator = Validator::make($request->all(), [
             'tipe_kamar' => 'required',
             'harga_sewa' => 'required',
             'kapasitas' => 'required',
             'lantai' => 'required'
         ]);
 
-        try{
-            Kamar::find($id)->update([
+        if($validator->fails()){
+            return response()->json($validator->errors(), 422);
+        }
+
+        $kamar = Kamar::findOrfail($id);
+
+        if($kamar){
+            $kamar->update([
                 'tipe_kamar' => $request->tipe_kamar,
                 'harga_sewa' => $request->harga_sewa,
                 'kapasitas' => $request->kapasitas,
                 'lantai' => $request->lantai
             ]);
-            return redirect()->route('kamar.index')->with(['success' => 'Data kamar berhasil Diedit']);
-        }catch(Exception $e){
-            return redirect()->route('kamar.index')->with(['success' => 'Data kamar gagal Diedit']);
-        }
+
+            return new KamarResource(true, 'Data Kamar Hotel Berhasil DiUpdate!', $kamar);
+        }         
+
+        return new KamarResource(false, 'Gagal Update, Data Kamar Hotel Tidak Ditemukan!', $kamar);
     }
 
     public function destroy($id){
-        try{
-           Kamar::find($id)->delete();             
-           return redirect()->route('kamar.index')->with(['success' => 'Data kamar berhasil dihapus!']);
-       }catch(Exception $e){
-            return redirect()->route('kamar.index')->with(['success'=> 'Data kamar gagal dihapus!']);
-        } 
-     }
+        $kamar = Kamar::findOrfail($id);
 
+        if($kamar){
+            $kamar->delete();
 
+            return new KamarResource(true, 'Data Kamar Hotel Berhasil DiHapus!', $kamar);
+        }
 
+        return new KamarResource(false, 'Gagal Hapus, Data Kamar Hotel Tidak Ditemukan!', $kamar);
+    }
 }

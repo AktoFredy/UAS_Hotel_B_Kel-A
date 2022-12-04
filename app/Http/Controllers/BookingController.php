@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BookingResource;
 use App\Models\Booking;
-use App\Models\Kamar;
-use App\Models\Karyawan;
-use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\Expr\Cast\Bool_;
 
 class BookingController extends Controller
 {
     public function index(){
-        $booking = Booking::get();
-        return view('booking.index', compact('booking'));
-    }
+        $booking = Booking::latest()->get();
 
-    public function create(){
-        $user = User::get();
-        $kamar = Kamar::get();
-        $karyawan = Karyawan::get();
-        return view('booking.create', compact('user', 'kamar', 'karyawan'));
+        if(count($booking) > 0){
+            return new BookingResource(true, 'List Data Booking', $booking);
+        }
+
+        return new BookingResource(false, 'List Data Booking Kosong', $booking);
     }
 
     public function store(Request $request){
-        $this->validate($request, [
+
+        $validator = Validator::make($request->all(), [
             'id_user' => 'required',
             'id_kamar' => 'required',
             'lama_menginap' => 'required',
@@ -32,33 +30,43 @@ class BookingController extends Controller
             'stat_cekInOrOut' => 'required',
             'id_karyawan' => 'required'
         ]);
-
-        try{
-            Booking::create([
-                'id_user' => $request->id_user,
-                'id_kamar' => $request->id_kamar,
-                'lama_menginap' => $request->lama_menginap,
-                'status_pembayaran' => $request->status_pembayaran,
-                'stat_cekInOrOut' => $request->stat_cekInOrOut,
-                'id_karyawan' => $request->id_karyawan
-            ]);
-            return redirect()->route('booking.index')->with(['success' => 'Data booking berhasil Disimpan']);
-        }catch(Exception $e){
-            return redirect()->route('booking.index')->with(['success' => 'Data booking gagal Disimpan']);
+        
+        if($validator->fails()){
+            return response()->json($validator->errors(), 422);
         }
+
+        $booking = Booking::create([
+            'id_user' => $request->id_user,
+            'id_kamar' => $request->id_kamar,
+            'lama_menginap' => $request->lama_menginap,
+            'status_pembayaran' => $request->status_pembayaran,
+            'stat_cekInOrOut' => $request->stat_cekInOrOut,
+            'id_karyawan' => $request->id_karyawan
+        ]);
+
+        return new BookingResource(true, 'Data Booking Berhasil Ditambah!', $booking);
     }
 
-    public function edit($id)
+    /**
+     * Display spesific Order Fob
+     * 
+     * @param \App\Models\Category $category
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
     {
-        $booking = Booking::find($id);
-        $user = User::get();
-        $kamar = Kamar::get();
-        $karyawan = Karyawan::get();
-        return view('booking.edit', compact('user','kamar', 'karyawan','booking'));
+        $booking = Booking::findOrfail($id);
+
+        if($booking){
+            return new BookingResource(true, 'Data Booking Hotel', $booking);
+        }
+
+        return new BookingResource(false, 'Data Booking Hotel Tidak Ditemukan', $booking);
     }
 
     public function update(Request $request, $id){
-        $this->validate($request, [
+        
+        $validator = Validator::make($request->all(), [
             'id_user' => 'required',
             'id_kamar' => 'required',
             'lama_menginap' => 'required',
@@ -66,9 +74,15 @@ class BookingController extends Controller
             'stat_cekInOrOut' => 'required',
             'id_karyawan' => 'required'
         ]);
+        
+        if($validator->fails()){
+            return response()->json($validator->errors(), 422);
+        }
 
-        try{
-            Booking::find($id)->update([
+        $booking = Booking::findOrfail($id);
+
+        if($booking){
+            $booking->update([
                 'id_user' => $request->id_user,
                 'id_kamar' => $request->id_kamar,
                 'lama_menginap' => $request->lama_menginap,
@@ -76,19 +90,23 @@ class BookingController extends Controller
                 'stat_cekInOrOut' => $request->stat_cekInOrOut,
                 'id_karyawan' => $request->id_karyawan
             ]);
-            return redirect()->route('booking.index')->with(['success' => 'Data booking berhasil Diedit']);
-        }catch(Exception $e){
-            return redirect()->route('booking.index')->with(['success' => 'Data booking gagal Diedit']);
+
+            return new BookingResource(true, 'Data Booking Berhasil Di Update!', $booking);
         }
+
+        return new BookingResource(false, 'Gagal Update, Data Booking Tidak Ditemukan!', $booking);
     }
 
     public function destroy($id)
     {
-        try{
-            Booking::find($id)->delete();            
-            return redirect()->route('booking.index')->with(['success' => 'Data  booking berhasil dihapus!']);
-        }catch(Exception $e){ 
-            return redirect()->route('booking.index')->with(['success'=> 'Data booking gagal dihapus!']);
-        }                
+        $booking = Booking::findOrfail($id);
+        
+        if($booking){
+            $booking->delete();
+
+            return new BookingResource(true, 'Data Booking Berhasil Di Hapus!', $booking);
+        }
+
+        return new BookingResource(false, 'Gagal Hapus, Data Booking Tidak Ditemukan!', $booking);
     }
 }
