@@ -15,6 +15,7 @@ class Kamar extends Model
      * @var array
      */
     protected $fillable = [
+        'kamar_img',
         'tipe_kamar',
         'harga_sewa',
         'kapasitas',

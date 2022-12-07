@@ -41,6 +41,7 @@ class KamarController extends Controller
     public function store(Request $request){
         
         $validator = Validator::make($request->all(), [
+            'kamar_img' => 'required|image|mimes:png,jpg,jpeg|max:2048',
             'tipe_kamar' => 'required',
             'harga_sewa' => 'required',
             'kapasitas' => 'required',
@@ -50,8 +51,13 @@ class KamarController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors(), 422);
         }
+        
+        $file = $request->file('kamar_img');
+        $image_name = date('Ymd').$file->getClientOriginalName();
+        $file->move(public_path('/image'), $image_name);
 
         $kamar = Kamar::create([
+            'kamar_img' => $image_name,
             'tipe_kamar' => $request->tipe_kamar,
             'harga_sewa' => $request->harga_sewa,
             'kapasitas' => $request->kapasitas,
@@ -64,6 +70,7 @@ class KamarController extends Controller
     public function update(Request $request, $id){
         
         $validator = Validator::make($request->all(), [
+            'kamar_img' => 'required|image|mimes:png,jpg,jpeg|max:2048',
             'tipe_kamar' => 'required',
             'harga_sewa' => 'required',
             'kapasitas' => 'required',
@@ -74,15 +81,24 @@ class KamarController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        $file = $request->file('kamar_img');
+        $image_name = date('Ymd').$file->getClientOriginalName();
+        $file->move(public_path('/image'), $image_name);
+
         $kamar = Kamar::findOrfail($id);
+
+        $path = "image/".$kamar['kamar_img'];
 
         if($kamar){
             $kamar->update([
+                'kamar_img' => $image_name,
                 'tipe_kamar' => $request->tipe_kamar,
                 'harga_sewa' => $request->harga_sewa,
                 'kapasitas' => $request->kapasitas,
                 'lantai' => $request->lantai
             ]);
+
+            unlink($path);
 
             return new KamarResource(true, 'Data Kamar Hotel Berhasil DiUpdate!', $kamar);
         }         
@@ -92,9 +108,11 @@ class KamarController extends Controller
 
     public function destroy($id){
         $kamar = Kamar::findOrfail($id);
+        $path = "image/".$kamar['kamar_img'];
 
         if($kamar){
             $kamar->delete();
+            unlink($path);
 
             return new KamarResource(true, 'Data Kamar Hotel Berhasil DiHapus!', $kamar);
         }
