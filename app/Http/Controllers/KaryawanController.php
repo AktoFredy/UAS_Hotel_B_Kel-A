@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\KaryawanResource;
 use App\Models\Karyawan;
+use App\Rules\GajiVad;
+use App\Rules\teleponVad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -42,10 +44,10 @@ class KaryawanController extends Controller
             'nama' => 'required',
             'jabatan' => 'required',
             'umur' => 'required',
-            'noHp' => 'required|regex:/^08([0-9]{4,5}$)/i',
+            'noHp' => [new teleponVad()],
             'alamat' => 'required',
-            'email' => 'required|email',
-            'gaji' => 'required',
+            'email' => 'required|email:rfc',
+            'gaji' => [new GajiVad()],
             'status' => 'required'
         ]);
 

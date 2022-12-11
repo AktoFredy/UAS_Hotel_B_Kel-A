@@ -43,9 +43,9 @@ class KamarController extends Controller
         $validator = Validator::make($request->all(), [
             'kamar_img' => 'required|image|mimes:png,jpg,jpeg|max:2048',
             'tipe_kamar' => 'required',
-            'harga_sewa' => 'required',
-            'kapasitas' => 'required',
-            'lantai' => 'required'
+            'harga_sewa' => 'required|numeric',
+            'kapasitas' => 'required|numeric',
+            'lantai' => 'required|numeric'
         ]);
 
         if($validator->fails()){
@@ -70,7 +70,6 @@ class KamarController extends Controller
     public function update(Request $request, $id){
         
         $validator = Validator::make($request->all(), [
-            'kamar_img' => 'required|image|mimes:png,jpg,jpeg|max:2048',
             'tipe_kamar' => 'required',
             'harga_sewa' => 'required',
             'kapasitas' => 'required',
@@ -81,24 +80,16 @@ class KamarController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $file = $request->file('kamar_img');
-        $image_name = date('Ymd').$file->getClientOriginalName();
-        $file->move(public_path('/image'), $image_name);
 
         $kamar = Kamar::findOrfail($id);
 
-        $path = "image/".$kamar['kamar_img'];
-
         if($kamar){
             $kamar->update([
-                'kamar_img' => $image_name,
                 'tipe_kamar' => $request->tipe_kamar,
                 'harga_sewa' => $request->harga_sewa,
                 'kapasitas' => $request->kapasitas,
                 'lantai' => $request->lantai
             ]);
-
-            unlink($path);
 
             return new KamarResource(true, 'Data Kamar Hotel Berhasil DiUpdate!', $kamar);
         }         

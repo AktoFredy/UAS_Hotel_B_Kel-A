@@ -28,7 +28,7 @@ class BookingController extends Controller
             'lama_menginap' => 'required',
             'status_pembayaran' => 'required',
             'stat_cekInOrOut' => 'required',
-            'id_karyawan' => 'required'
+            'id_karyawan' => 'required' //kasir nya, jadi relasi karyawan dengan jabatan kasir
         ]);
         
         if($validator->fails()){

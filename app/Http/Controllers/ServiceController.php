@@ -41,7 +41,7 @@ class ServiceController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_service' => 'required',
             'id_karyawan' => 'required',
-            'harga_service' => 'required',
+            'harga_service' => 'required|numeric',
             'status_service' => 'required'
         ]);
 

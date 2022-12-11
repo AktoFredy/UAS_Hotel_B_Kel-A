@@ -26,4 +26,6 @@ Route::apiResource('/karyawans', App\Http\Controllers\KaryawanController::class)
 Route::apiResource('/orderfobs', App\Http\Controllers\OrderFobController::class);
 Route::apiResource('/orderservices', App\Http\Controllers\OrderServiceController::class);
 Route::apiResource('/services', App\Http\Controllers\ServiceController::class);
+Route::apiResource('/reservliburan', App\Http\Controllers\ReservLiburan::class);
+Route::apiResource('/paketwisata', App\Http\Controllers\PaketWisata::class);
 

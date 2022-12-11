@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('kamars', function (Blueprint $table) {
+        Schema::create('orwis', function (Blueprint $table) {
             $table->id();
-            $table->string('tipe_kamar');
-            $table->integer('harga_sewa');
-            $table->integer('kapasitas');
-            $table->integer('lantai');
-            $table->string('kamar_img');
+            $table->foreignId('id_booking')->constrained('bookings')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('id_wisata')->constrained('paket_wisatas')->onUpdate('cascade')->onDelete('cascade');
+            $table->boolean('status_pembayaran');
+            $table->boolean('supir');
+            $table->boolean('kendaraan');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kamars');
+        Schema::dropIfExists('orwis');
     }
 };

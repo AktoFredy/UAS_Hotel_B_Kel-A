@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Rules\teleponVad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -53,14 +55,14 @@ class UserController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'username' => 'required',
-            'email' => 'required',
+            'username' => 'required|unique:users|alpha_num',
+            'email' => 'required|unique|email:rfc',
             'password' => 'required',
-            'nama' => 'required',
-            'umur' => 'required',
+            'nama' => 'required|string|max:25',
+            'umur' => 'required|numeric',
             'gender' => 'required',
             'alamat' => 'required',
-            'no_hp' => 'required',
+            'no_hp' => [new teleponVad()],
             'status' => 'required',
         ]);
 
@@ -74,7 +76,7 @@ class UserController extends Controller
             $user->update([
                 'username' => $request->username,
                 'email' => $request->email,
-                'password' => $request->password,
+                'password' => Hash::make($request->password),
                 'nama' => $request->nama,
                 'umur' => $request->umur,
                 'gender' => $request->gender,

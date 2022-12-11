@@ -57,7 +57,7 @@ class OrderFobController extends Controller
             'id_menu' => 'required',
             'status_pembayaran' => 'required',
             'jumlah' => 'required',
-            'total' => 'required'
+            'total' => 'required|numeric'
         ]);
 
         if($validator->fails()){
@@ -84,6 +84,19 @@ class OrderFobController extends Controller
      */
     public function update(Request $request, $id)
     {
+         // validation
+         $validator = Validator::make($request->all(), [
+            'id_booking' => 'required',
+            'id_menu' => 'required',
+            'status_pembayaran' => 'required',
+            'jumlah' => 'required',
+            'total' => 'required|numeric'
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors());
+        }
+
         $orderFob = OrderFob::findOrfail($id);
 
         if($orderFob){

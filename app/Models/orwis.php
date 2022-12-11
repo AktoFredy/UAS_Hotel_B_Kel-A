@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OrderService extends Model
+class orwis extends Model
 {
     use HasFactory;
 
+    
     /**
      * fillable
      * 
@@ -16,18 +17,20 @@ class OrderService extends Model
      */
     protected $fillable = [
         'id_booking',
-        'id_service',
+        'id_wisata',
         'status_pembayaran',
+        'supir',
+        'kendaraan',
     ];
-
-    /**
+    
+        /**
         * Get the menu that owns the OrderFOB
         *
         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
         */
-        public function service()
+        public function paket_wisata()
         {
-            return $this->belongsTo(Service::class, 'id_service', 'id');
+            return $this->belongsTo(paket_wisata::class, 'id_wisata', 'id');
         }
 
         /**
