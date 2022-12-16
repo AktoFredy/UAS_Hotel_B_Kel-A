@@ -35,11 +35,10 @@ class AuthController extends Controller
 
         $user = User::create($registrationData);
 
-        $tokenRegis = $user->createToken('authToken')->accessToken;
+        //$tokenRegis = $user->createToken('authToken')->accessToken;
 
         return  response([
             'message' => 'Register Success',
-            'access_token' => $tokenRegis,
             'user' => $user
         ], 200);
     }
@@ -61,6 +60,7 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+        
         $tokenLogin = $user->createToken('authToken')->accessToken;
 
         return response([
