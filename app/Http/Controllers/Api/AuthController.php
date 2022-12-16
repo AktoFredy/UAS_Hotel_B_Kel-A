@@ -34,6 +34,7 @@ class AuthController extends Controller
         $registrationData['password'] = bcrypt($request->password);
 
         $user = User::create($registrationData);
+        $user->sendApiEmailVerificationNotification();
 
         //$tokenRegis = $user->createToken('authToken')->accessToken;
 
@@ -60,6 +61,12 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        if ($user->email_verified_at == NULL) {
+            return response([
+                'message' => 'Please Verify Your Email'
+            ], 401); //Return error jika belum verifikasi email
+        }
         
         $tokenLogin = $user->createToken('authToken')->accessToken;
 

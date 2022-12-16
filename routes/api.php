@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\EmailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,4 +38,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+Route::get('email/verify/{id}', [EmailController::class, 'verify'])->name('verificationapi.verify');
+Route::get('email/resend', [EmailController::class, 'resend'])->name('verificationapi.resend');
 
