@@ -35,11 +35,11 @@ class AuthController extends Controller
 
         $user = User::create($registrationData);
 
-        $tokenRegis = $user->createToken('authToken')->accessToken;
+        // $tokenRegis = $user->createToken('authToken')->accessToken;
 
         return  response([
             'message' => 'Register Success',
-            'access_token' => $tokenRegis,
+            // 'access_token' => $tokenRegis,
             'user' => $user
         ], 200);
     }
@@ -47,13 +47,16 @@ class AuthController extends Controller
     public function login(Request $request){
         $loginData = $request->all();
 
+        // return response(['message' => $loginData], 200);
         $validator = Validator::make($loginData,[
-            'username' => 'required|alpha_num',
+            'email' => 'required|',
             'password' => 'required'
         ]);
 
+       
+
         if($validator->fails()){
-            return response()->json($validator->errors());
+            return response(['message' => $validator->errors()], 422);
         }
 
         if(!Auth::attempt($loginData)){
@@ -61,13 +64,13 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        $tokenLogin = $user->createToken('authToken')->accessToken;
+        // $tokenLogin = $user->createToken('authToken')->accessToken;
 
         return response([
             'message' => 'Authenticated',
             'user' => $user,
-            'token_type' => 'Bearer',
-            'access_token' => $tokenLogin
+            // 'token_type' => 'Bearer',
+            // 'access_token' => $tokenLogin
         ]);        
     }
 
