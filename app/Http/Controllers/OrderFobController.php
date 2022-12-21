@@ -56,8 +56,8 @@ class OrderFobController extends Controller
             'id_booking' => 'required',
             'id_menu' => 'required',
             'status_pembayaran' => 'required',
-            'jumlah' => 'required',
-            'total' => 'required|numeric'
+            'jumlah' => 'required|numeric|min:1',
+            'total' => 'required|numeric|min:1'
         ]);
 
         if($validator->fails()){
@@ -89,8 +89,8 @@ class OrderFobController extends Controller
             'id_booking' => 'required',
             'id_menu' => 'required',
             'status_pembayaran' => 'required',
-            'jumlah' => 'required',
-            'total' => 'required|numeric'
+            'jumlah' => 'required|numeric|min:1',
+            'total' => 'required|numeric|min:1',
         ]);
 
         if($validator->fails()){
